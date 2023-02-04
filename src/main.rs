@@ -1,5 +1,7 @@
 pub mod components;
+pub mod resources;
 
+use bevy::app::AppExit;
 use bevy::core_pipeline::clear_color::ClearColorConfig;
 use bevy::prelude::Color;
 use bevy::prelude::*;
@@ -15,8 +17,13 @@ fn main() {
             },
             ..Default::default()
         }))
+        .insert_resource(resources::StepTimer(Timer::from_seconds(
+            0.5_f32,
+            TimerMode::Repeating,
+        )))
         .add_startup_system(setup)
         .add_system(snake_head_movement_system)
+        .add_system(exit_if_loose)
         .run();
 }
 
@@ -29,7 +36,7 @@ fn setup(mut commands: Commands) {
         ..Default::default()
     });
 
-    // render the first point as a circle
+    // add the snake head
     commands.spawn((
         SpriteBundle {
             sprite: Sprite {
@@ -39,28 +46,62 @@ fn setup(mut commands: Commands) {
             },
             ..Default::default()
         },
-        components::SnakeHead { x: 0_f32, y: 0_f32 },
+        components::Snake(vec![[0_f32, 0_f32]]),
     ));
 
-    // add the snake head
+    // set default direction
+    commands.spawn(components::LastDirection(components::Direction::Left));
 }
 
 fn snake_head_movement_system(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut components::SnakeHead, &mut Transform)>,
+    time: Res<Time>,
+    mut step_timer: ResMut<resources::StepTimer>,
+    mut direction_query: Query<&mut components::LastDirection>,
+    mut snake_head_query: Query<(&mut components::Snake, &mut Transform)>,
 ) {
-    let (mut head, mut transform) = query.single_mut();
+    // get the snake head and its transform
+    let (mut snake, mut transform) = snake_head_query.single_mut();
+    // get the last direction
+    let mut direction = direction_query.single_mut();
 
+    // check if the user pressed a key and change the direction
     if keyboard_input.pressed(KeyCode::Up) {
-        transform.translation.y += 10_f32;
+        direction.0 = components::Direction::Up;
     } else if keyboard_input.pressed(KeyCode::Down) {
-        transform.translation.y -= 10_f32;
+        direction.0 = components::Direction::Down;
     } else if keyboard_input.pressed(KeyCode::Left) {
-        transform.translation.x -= 10_f32;
+        direction.0 = components::Direction::Left;
     } else if keyboard_input.pressed(KeyCode::Right) {
-        transform.translation.x += 10_f32;
+        direction.0 = components::Direction::Right;
     }
 
-    head.x = transform.translation.x;
-    head.y = transform.translation.y;
+    // move the snake head
+    if step_timer.0.tick(time.delta()).just_finished() {
+        match direction.0 {
+            components::Direction::Up => transform.translation.y += 16_f32,
+            components::Direction::Down => transform.translation.y -= 16_f32,
+            components::Direction::Left => transform.translation.x -= 16_f32,
+            components::Direction::Right => transform.translation.x += 16_f32,
+        }
+    }
+
+    // update the snake head position
+    snake.0[0][0] = transform.translation.x;
+    snake.0[0][1] = transform.translation.y;
+}
+
+fn exit_if_loose(snake_query: Query<&components::Snake>, mut exit: EventWriter<AppExit>) {
+    // get the snake head
+    let snake = snake_query.single();
+
+    // check if the snake head is out of the screen
+    if snake.0[0][0] < -400_f32
+        || snake.0[0][0] > 800_f32
+        || snake.0[0][1] < -300_f32
+        || snake.0[0][1] > 600_f32
+    {
+        // close the game
+        exit.send(AppExit)
+    }
 }
