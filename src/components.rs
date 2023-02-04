@@ -1,9 +1,10 @@
-use bevy::prelude::{Component, Resource};
+use bevy::prelude::Component;
 
-#[derive(Resource)]
-pub struct WindowSize {
-    pub width: f32,
-    pub height: f32,
+// snake head
+#[derive(Component)]
+pub struct SnakeHead {
+    pub x: f32,
+    pub y: f32,
 }
 
 // point number
@@ -17,3 +18,11 @@ pub struct PositionX(pub f32);
 // y position of the point
 #[derive(Component)]
 pub struct PositionY(pub f32);
+
+#[derive(Component)]
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}

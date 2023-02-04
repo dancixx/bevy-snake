@@ -9,53 +9,58 @@ fn main() {
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             window: WindowDescriptor {
                 title: "Bevy Snake Game".to_string(),
-                width: 800f32,
-                height: 600f32,
+                width: 800_f32,
+                height: 600_f32,
                 ..Default::default()
             },
             ..Default::default()
         }))
         .add_startup_system(setup)
+        .add_system(snake_head_movement_system)
         .run();
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // add the window size resource
-    commands.insert_resource(components::WindowSize {
-        width: 800f32,
-        height: 600f32,
-    });
-
+fn setup(mut commands: Commands) {
     // set background color
     commands.spawn(Camera2dBundle {
         camera_2d: Camera2d {
-            clear_color: ClearColorConfig::Custom(Color::GREEN),
+            clear_color: ClearColorConfig::Custom(Color::BLACK),
         },
         ..Default::default()
     });
-
-    let random_x = rand::random::<f32>() * 800.0;
-    let random_y = rand::random::<f32>() * 600.0;
-
-    // add the first point
-    commands.spawn((
-        components::Point(0),
-        components::PositionX(random_x),
-        components::PositionY(random_y),
-    ));
 
     // render the first point as a circle
-    commands.spawn(SpriteBundle {
-        texture: asset_server.load("black_dot.png"),
-        transform: Transform {
-            translation: Vec3::new(
-                f32::abs(800f32 / 2f32 - random_x),
-                f32::abs(600f32 / 2f32 - random_y),
-                0.0,
-            ),
-            scale: Vec3::new(0.1, 0.1, 0.1),
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                color: Color::WHITE,
+                custom_size: Some(Vec2::new(16_f32, 16_f32)),
+                ..Default::default()
+            },
             ..Default::default()
         },
-        ..Default::default()
-    });
+        components::SnakeHead { x: 0_f32, y: 0_f32 },
+    ));
+
+    // add the snake head
+}
+
+fn snake_head_movement_system(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut query: Query<(&mut components::SnakeHead, &mut Transform)>,
+) {
+    let (mut head, mut transform) = query.single_mut();
+
+    if keyboard_input.pressed(KeyCode::Up) {
+        transform.translation.y += 10_f32;
+    } else if keyboard_input.pressed(KeyCode::Down) {
+        transform.translation.y -= 10_f32;
+    } else if keyboard_input.pressed(KeyCode::Left) {
+        transform.translation.x -= 10_f32;
+    } else if keyboard_input.pressed(KeyCode::Right) {
+        transform.translation.x += 10_f32;
+    }
+
+    head.x = transform.translation.x;
+    head.y = transform.translation.y;
 }
