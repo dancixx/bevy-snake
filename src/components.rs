@@ -1,22 +1,20 @@
 use bevy::prelude::Component;
 
-#[derive(Component)]
-pub struct Snake(pub Vec<[f32; 2]>);
+#[derive(Component, Debug, PartialEq, Eq)]
+pub struct SnakePointID(pub usize);
+
+#[derive(Component, Debug)]
+pub struct SnakePoint(pub f32, pub f32);
 
 #[derive(Component)]
 pub struct LastDirection(pub Direction);
 
 // point number
 #[derive(Component)]
-pub struct Point(pub usize);
-
-// x position of the point
-#[derive(Component)]
-pub struct PositionX(pub f32);
-
-// y position of the point
-#[derive(Component)]
-pub struct PositionY(pub f32);
+pub struct Point {
+    pub x: f32,
+    pub y: f32,
+}
 
 #[derive(Component, Debug)]
 pub enum Direction {
