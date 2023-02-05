@@ -1,6 +1,6 @@
 use crate::{
-    components::{Food, LastDirection, Position, SnakePoint, SnakePoints},
-    utils::gen_random_position,
+    data::{Food, LastDirection, Position, SnakePoint, SnakePoints},
+    utils::{gen_random_position, spawn_snake_point},
 };
 use bevy::{core_pipeline::clear_color::ClearColorConfig, prelude::*};
 
@@ -25,20 +25,27 @@ pub fn setup_playground(mut commands: Commands) {
 }
 
 pub fn setup_snake(mut commands: Commands, mut snake: ResMut<SnakePoints>) {
-    *snake = SnakePoints(vec![commands
-        .spawn((
-            SpriteBundle {
-                sprite: Sprite {
-                    color: Color::WHITE,
-                    custom_size: Some(Vec2::new(16., 16.)),
+    *snake = SnakePoints(vec![
+        commands
+            .spawn((
+                SpriteBundle {
+                    sprite: Sprite {
+                        color: Color::WHITE,
+                        custom_size: Some(Vec2::new(16., 16.)),
+                        ..Default::default()
+                    },
+                    transform: Transform {
+                        translation: Vec3::new(0., 0., 0.),
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
-                ..Default::default()
-            },
-            Position { x: 0., y: 0. },
-            SnakePoint,
-        ))
-        .id()]);
+                Position { x: 0, y: 0 },
+                SnakePoint,
+            ))
+            .id(),
+        spawn_snake_point(commands, Position { x: 16, y: 0 }),
+    ]);
 }
 
 pub fn setup_first_food(mut commands: Commands) {

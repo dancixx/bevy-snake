@@ -1,4 +1,4 @@
-use crate::components::{self, Position, SnakePoint};
+use crate::data::{self, Position, SnakePoint};
 use bevy::prelude::*;
 use rand::Rng;
 
@@ -29,17 +29,17 @@ pub fn spawn_snake_point(mut command: Commands, position: Position) -> Entity {
 
 pub fn controller(
     keyboard_input: Res<Input<KeyCode>>,
-    mut direction: Query<&mut components::LastDirection>,
+    mut direction: Query<&mut data::LastDirection>,
 ) {
     let mut direction = direction.single_mut();
 
-    if keyboard_input.pressed(KeyCode::Up) && direction.0 != components::Direction::Down {
-        direction.0 = components::Direction::Up;
-    } else if keyboard_input.pressed(KeyCode::Down) && direction.0 != components::Direction::Up {
-        direction.0 = components::Direction::Down;
-    } else if keyboard_input.pressed(KeyCode::Left) && direction.0 != components::Direction::Right {
-        direction.0 = components::Direction::Left;
-    } else if keyboard_input.pressed(KeyCode::Right) && direction.0 != components::Direction::Left {
-        direction.0 = components::Direction::Right;
+    if keyboard_input.pressed(KeyCode::Up) && direction.0 != data::Direction::Down {
+        direction.0 = data::Direction::Up;
+    } else if keyboard_input.pressed(KeyCode::Down) && direction.0 != data::Direction::Up {
+        direction.0 = data::Direction::Down;
+    } else if keyboard_input.pressed(KeyCode::Left) && direction.0 != data::Direction::Right {
+        direction.0 = data::Direction::Left;
+    } else if keyboard_input.pressed(KeyCode::Right) && direction.0 != data::Direction::Left {
+        direction.0 = data::Direction::Right;
     }
 }

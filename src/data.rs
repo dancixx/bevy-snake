@@ -19,10 +19,10 @@ impl Default for LastDirection {
 pub struct Food;
 
 // point number
-#[derive(Component, Clone, Copy, Debug)]
+#[derive(Component, Clone, Copy, PartialEq, Eq)]
 pub struct Position {
-    pub x: f32,
-    pub y: f32,
+    pub x: i32,
+    pub y: i32,
 }
 
 #[derive(Component, Debug, PartialEq, Eq)]
