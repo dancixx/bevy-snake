@@ -1,40 +1,26 @@
-use bevy::prelude::Component;
+use bevy::prelude::{Component, Deref, DerefMut, Entity, Resource};
 
-#[derive(Component, Clone, Debug)]
-pub struct SnakePoints(pub Vec<[f32; 2]>);
+#[derive(Resource, Default, Deref, DerefMut)]
+pub struct SnakePoints(pub Vec<Entity>);
 
-impl SnakePoints {
-    pub fn new() -> Self {
-        Self(vec![[-16_f32, 0_f32]])
-    }
-
-    pub fn head(&self) -> [f32; 2] {
-        self.0[0]
-    }
-
-    pub fn tail(&self) -> [f32; 2] {
-        self.0[self.0.len() - 1]
-    }
-
-    pub fn add_head(&mut self, point: [f32; 2]) {
-        self.0.insert(0, point);
-    }
-
-    pub fn remove_tail(&mut self) {
-        self.0.pop();
-    }
-
-    pub fn push(&mut self, point: [f32; 2]) {
-        self.0.push(point);
-    }
-}
+#[derive(Component)]
+pub struct SnakePoint;
 
 #[derive(Component)]
 pub struct LastDirection(pub Direction);
 
+impl Default for LastDirection {
+    fn default() -> Self {
+        Self(Direction::Left)
+    }
+}
+
+#[derive(Component)]
+pub struct Food;
+
 // point number
 #[derive(Component, Clone, Copy, Debug)]
-pub struct Point {
+pub struct Position {
     pub x: f32,
     pub y: f32,
 }
